@@ -1,0 +1,35 @@
+#!/bin/bash
+db_username=admin
+db_user_password=123456789
+db_name=wp
+db_user_host=wp-database.cs0ir4ts6kmh.us-east-1.rds.amazonaws.com
+yum update -y
+amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+wget https://wordpress.org/latest.tar.gz
+tar -xzf latest.tar.gz
+sudo cp -r wordpress/* /var/www/html/
+cd /var/www/html/
+cp wp-config-sample.php wp-config.php
+chown -R apache /var/www
+chgrp -R apache /var/www
+chmod 775 /var/www
+find /var/www -type d -exec sudo chmod 2775 {} \;
+find /var/www -type f -exec sudo chmod 0664 {} \;
+sed -i "s/database_name_here/$db_name/g" wp-config.php
+sed -i "s/username_here/$db_username/g" wp-config.php
+sed -i "s/password_here/$db_user_password/g" wp-config.php
+sed -i "s/localhost/$db_user_host/g" wp-config.php
+systemctl restart httpd
+
+
+
+
+Nat-İnstances oluşturmak için kod;
+
+#! /bin/bash
+
+echo 1 > /proc/sys/net/ipv4/ip_forward
+iptables -t nat -A POSTROUTING -s 10.0.0.0/16 -j MASQUERADE
